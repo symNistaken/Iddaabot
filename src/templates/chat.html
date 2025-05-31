@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futbol Bahis Sohbet Botu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #174ea6;
+            --secondary: #a21caf;
+            --success: #06d6a0;
+            --danger: #ef476f;
+            --light: #f4f6fb;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --chat-bg: #f4f6fb;
+            --bot-bg: #fff;
+            --user-bg: linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
+            --user-color: #fff;
+            --bot-bubble: #f3f4f6;
+            --user-icon-bg: #174ea6;
+            --bot-icon-bg: #eaf1ff;
+        }
+        [data-theme="dark"] {
+            --chat-bg: #181a1b;
+            --bot-bg: #23272b;
+            --user-bg: linear-gradient(90deg, #2563eb 0%, #38bdf8 100%);
+            --user-color: #fff;
+            --dark: #f8f9fa;
+            --light: #23272b;
+            --gray: #b0b3b8;
+            --bot-bubble: #23272b;
+            --user-icon-bg: #2563eb;
+            --bot-icon-bg: #23272b;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--chat-bg);
+            margin: 0;
+            padding: 0;
+            color: var(--dark);
+            line-height: 1.6;
+            transition: background 0.3s;
+        }
+        .chat-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: var(--bot-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #2563eb, #a21caf);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.5rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #clear-btn {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #f1f3f7;
+            color: var(--gray);
+            border: none;
+            border-radius: 50%;
+            padding: 0.5rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: none;
+            width: 2.4rem;
+            height: 2.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #clear-btn:hover {
+            background: #e2e6ea;
+            color: var(--danger);
+        }
+        #theme-toggle {
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #f1f3f7;
+            color: var(--gray);
+            border: none;
+            border-radius: 50%;
+            padding: 0.5rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: none;
+            width: 2.4rem;
+            height: 2.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #theme-toggle:hover {
+            background: #e2e6ea;
+            color: var(--primary);
+        }
+        .conversation {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            background: var(--chat-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .message {
+            max-width: 80%;
+            padding: 1rem 1.25rem;
+            border-radius: var(--border-radius);
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            font-size: 1rem;
+            word-break: break-word;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message.user {
+            align-self: flex-end;
+            background: var(--user-bg);
+            color: var(--user-color);
+            border-bottom-right-radius: 4px;
+            flex-direction: row-reverse;
+            box-shadow: 0 2px 8px rgba(58,134,255,0.08);
+        }
+        .message.bot {
+            align-self: flex-start;
+            background: var(--bot-bubble);
+            color: var(--dark);
+            border-bottom-left-radius: 4px;
+        }
+        .message .icon {
+            font-size: 1.5rem;
+            margin-top: 2px;
+            opacity: 0.85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.2rem;
+            min-height: 2.2rem;
+        }
+        .message.user .icon {
+            color: #fff;
+            background: var(--user-icon-bg);
+            border-radius: 50%;
+            padding: 0.2em 0.3em;
+        }
+        .message.bot .icon {
+            color: var(--primary);
+            background: var(--bot-icon-bg);
+            border-radius: 50%;
+            padding: 0.2em 0.3em;
+        }
+        .message .sender {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: block;
+        }
+        .message.user .sender {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .message.bot .sender {
+            color: var(--primary);
+        }
+        .message .timestamp {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+        .input-container {
+            display: flex;
+            padding: 1.5rem;
+            background: var(--bot-bg);
+            border-top: 1px solid #e5e7eb;
+            gap: 0.75rem;
+        }
+        [data-theme="dark"] .input-container {
+            border-top: 1px solid #2c2f34;
+        }
+        .input-container input {
+            flex: 1;
+            padding: 0.75rem 1.25rem;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--light);
+            color: var(--dark);
+        }
+        [data-theme="dark"] .input-container input {
+            border: 2px solid #444851;
+            background: var(--light);
+            color: var(--dark);
+        }
+        .input-container input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+        }
+        .input-container button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .input-container button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        .input-container button:active {
+            transform: translateY(0);
+        }
+        /* Scrollbar styling */
+        .conversation::-webkit-scrollbar {
+            width: 8px;
+        }
+        .conversation::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .conversation::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+        .conversation::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .chat-container {
+                margin: 0;
+                height: 100vh;
+                border-radius: 0;
+            }
+            .message {
+                max-width: 90%;
+                font-size: 1rem;
+            }
+            .chat-header {
+                font-size: 1.1rem;
+                padding: 1rem;
+            }
+            .input-container input, .input-container button {
+                font-size: 1.1rem;
+                padding: 1rem;
+            }
+            #clear-btn, #theme-toggle {
+                top: 10px;
+                right: 10px;
+                font-size: 0.9rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+        /* Yükleniyor animasyonu */
+        #loading {
+            display: none;
+            text-align: center;
+            margin: 10px;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+        #loading .fa-spinner {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="chat-container">
+        <div class="chat-header">
+            <button id="theme-toggle" type="button" title="Açık/Koyu Tema">
+                <i class="fas fa-moon"></i>
+            </button>
+            <h2 style="flex:1;">Futbol Bahis Sohbet Botu</h2>
+            <button id="clear-btn" type="button" title="Geçmişi Temizle">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+        <div class="conversation">
+            {% if conversation|length == 0 %}
+                <div style="max-width:400px;margin:2rem auto 0 auto;padding:1.5rem 1.2rem;background:rgba(36, 41, 46, 0.95);color:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.12);text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:0.5rem;">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div style="font-size:1.15rem;font-weight:600;margin-bottom:0.5rem;">
+                        Merhaba! Ben iddaa Bot.
+                    </div>
+                    <div style="font-size:1rem;opacity:0.85;">
+                        Futbol maçları hakkında tahmin almak, istatistik sormak veya bahis önerisi almak için aşağıya sorunuzu yazabilirsiniz.<br>
+                        <span style="color:#38bdf8;">Örnek: "Galatasaray-Fenerbahçe maçını kim kazanır?"</span>
+                    </div>
+                </div>
+            {% else %}
+                {% for message in conversation %}
+                    <div class="message {% if message.sender == 'Müşteri' %}user{% else %}bot{% endif %}">
+                        <span class="icon">
+                            {% if message.sender == 'Müşteri' %}
+                                <i class="fas fa-user"></i>
+                            {% else %}
+                                <i class="fas fa-robot"></i>
+                            {% endif %}
+                        </span>
+                        <div style="flex:1;">
+                            <span class="sender">{{ message.sender }}:</span> {{ message.message }}
+                            <div class="timestamp">{{ message.timestamp }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <form method="POST" class="input-container">
+            <input type="text" name="user_input" placeholder="Futbol maçları hakkında bana sor..." required autocomplete="off">
+            <button type="submit"><i class="fas fa-paper-plane"></i> Gönder</button>
+        </form>
+        <div id="loading">
+            <i class="fas fa-spinner fa-spin"></i> Yanıt bekleniyor...
+        </div>
+    </div>
+    <script>
+        // Otomatik scroll
+        window.onload = function() {
+            var conv = document.querySelector('.conversation');
+            conv.scrollTop = conv.scrollHeight;
+        };
+        document.querySelector("form").onsubmit = function() {
+            document.getElementById("loading").style.display = "block";
+        }
+        document.getElementById("clear-btn").onclick = function() {
+            fetch("/clear", {method: "POST"})
+              .then(() => window.location = "/");
+        };
+        // Tema toggle
+        const themeBtn = document.getElementById("theme-toggle");
+        themeBtn.innerHTML = '<i class="fas fa-sun"></i>'; // Varsayılan dark modda güneş ikonu
+        themeBtn.onclick = function() {
+            if(document.body.getAttribute("data-theme") === "dark") {
+                document.body.removeAttribute("data-theme");
+                themeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                document.body.setAttribute("data-theme", "dark");
+                themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        };
+    </script>
+</body>
+</html>
