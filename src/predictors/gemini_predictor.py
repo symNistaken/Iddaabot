@@ -1,7 +1,7 @@
 class GeminiPredictor:
     def __init__(self, model_name):
         self.model_name = model_name
-        self.api_key = "AIzaSyB4ptLib_l0yrs3LsylaXcROe_kGRcA8V0"
+        self.api_key = "#your_api_key"
         self.model = self.initialize_model()
 
     def initialize_model(self):
