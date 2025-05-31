@@ -60,4 +60,4 @@ Bu proje MIT lisansı ile lisanslanmıştır.
 
 ## Geliştirici
 
-- [Berkay Seyman](berkayseyman@gmail.com)
+- [Berkay Seyman](https://github.com/symNistaken)
