@@ -10,7 +10,7 @@ with open(os.devnull, 'w') as devnull, contextlib.redirect_stderr(devnull):
 app = Flask(__name__)
 app.secret_key = "GÜVENLİ_BİR_SECRET_KEY"
 
-genai.configure(api_key="AIzaSyB4ptLib_l0yrs3LsylaXcROe_kGRcA8V0")
+genai.configure(api_key="#your_key")
 
 predictor = GeminiPredictor(model_name="gemini-2.0-flash",)
 
